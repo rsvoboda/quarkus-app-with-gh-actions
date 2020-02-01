@@ -1,0 +1,31 @@
+name: "Pull Request / Push Build"
+on:
+  - push
+  - pull_request
+jobs:
+  build:
+    name: JVM build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 8, 11 ]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Install JDK {{ matrix.java }}
+        uses: joschi/setup-jdk@v1.0.0
+        with:
+          java-version: openjdk${{ matrix.java }}
+      - name: Build with Maven
+        run: LANG=en_US mvn -B clean install
+      - name: Zip Artifacts
+        run: zip -R artifacts.zip 'surefire-reports/*' 'failsafe-reports/*'
+      - uses: actions/upload-artifact@v1
+        with:
+          name: ci-artifacts
+          path: artifacts.zip
