@@ -26,11 +26,11 @@ jobs:
           LANG=en_US mvn -V -B clean install
       - name: Zip Artifacts
         run: |
-          zip -R artifacts-jvm.zip 'surefire-reports/*' 'failsafe-reports/*'
+          zip -R artifacts-jvm${{ matrix.java }}.zip 'surefire-reports/*' 'failsafe-reports/*'
       - uses: actions/upload-artifact@v1
         with:
           name: ci-artifacts
-          path: artifacts-jvm.zip
+          path: artifacts-jvm${{ matrix.java }}.zip
   native-build:
     name: Native build
     runs-on: ubuntu-latest
@@ -58,8 +58,8 @@ jobs:
             -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-native-image:19.3.1-java${{ matrix.java }}
       - name: Zip Artifacts
         run: |
-          zip -R artifacts-native.zip 'surefire-reports/*' 'failsafe-reports/*'
+          zip -R artifacts-native${{ matrix.java }}.zip 'surefire-reports/*' 'failsafe-reports/*'
       - uses: actions/upload-artifact@v1
         with:
           name: ci-artifacts
-          path: artifacts-native.zip
+          path: artifacts-native${{ matrix.java }}.zip
